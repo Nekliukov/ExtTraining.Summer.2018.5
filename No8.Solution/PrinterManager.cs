@@ -2,60 +2,75 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
-using No8.Solution.Printers;
 
 namespace No8.Solution
 {
     public class PrinterManager
     {
-        public PrinterManager()
+        public event EventHandler<TerminatorEventArgs> OutputTerminator = delegate { };
+
+        public void SimulateStartOutput(string message)
+            => OnOutputTerminator(new TerminatorEventArgs(message));
+
+        public void SimulateStopOutput(string message)
+            => OnOutputTerminator(new TerminatorEventArgs(message));
+
+        public PrinterManager() => Printers = new List<object>();
+
+        public List<object> Printers { get; set; }
+
+        public void Add(Printer p1)
         {
-            printers = new List<Printer>();
+            Console.WriteLine("Enter printer name");
+            p1.Name = Console.ReadLine();
+            Console.WriteLine("Enter printer model");
+            p1.Model = Console.ReadLine();
+
+            if (!Printers.Contains(p1))
+            {
+                Printers.Add(p1);
+                Console.WriteLine("Printer added");
+            }
         }
 
-        private List<Printer> printers { get; set; }
-
-        public void Add(Printer newPrinter)
+        public void Print(EpsonPrinter p1)
         {
-            CheckNull(newPrinter);
-            CheckExistion(newPrinter);          
-            printers.Add(newPrinter);
-            Console.WriteLine("Printer added");
+            p1.Register(this);
+            Log("Print started");
+            var o = new OpenFileDialog();
+            o.ShowDialog();
+            var f = File.OpenRead(o.FileName);
+            SimulateStartOutput("Start outputing file content");
+            p1.Print(f);
+            SimulateStopOutput("Stop outputing file content");
+            Log("Print finished");
+            p1.Unregister(this);
         }
 
-        public void Print(Printer p1)
+        public void Print(CanonPrinter p1)
         {
+            p1.Register(this);
             Log("Print started");
             var o = new OpenFileDialog();
             o.ShowDialog();
             var f = File.OpenRead(o.FileName);
             p1.Print(f);
             Log("Print finished");
+            p1.Unregister(this);
         }
 
-        public void Log(string s)
+        public void Log(string value)
         {
-            File.AppendText("log.txt").Write(s);
-        }
-
-        #region Private methods
-
-        private void CheckNull(Printer value)
-        {
-            if (value == null)
+            using (StreamWriter sw = File.AppendText("log.txt"))
             {
-                throw new ArgumentNullException();
+                sw.Write(value);
             }
         }
 
-        private void CheckExistion(Printer value)
+        protected virtual void OnOutputTerminator(TerminatorEventArgs e)
         {
-            if (printers.Contains(value))
-            {
-                throw new ArgumentException("Printer is already exists");
-            }
+            EventHandler<TerminatorEventArgs> temp = OutputTerminator;
+            temp?.Invoke(this, e);
         }
-
-        #endregion
     }
 }
