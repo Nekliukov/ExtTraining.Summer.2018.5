@@ -33,30 +33,20 @@ namespace No8.Solution
             }
         }
 
-        public void Print(EpsonPrinter p1)
+        public void Print(Printer printer)
         {
-            p1.Register(this);
-            Log("Print started");
-            var o = new OpenFileDialog();
-            o.ShowDialog();
-            var f = File.OpenRead(o.FileName);
-            SimulateStartOutput("Start outputing file content");
-            p1.Print(f);
-            SimulateStopOutput("Stop outputing file content");
+            printer.Register(this);
+            var fileToWrite= new OpenFileDialog();
+            fileToWrite.ShowDialog();
+            using (var file = File.OpenRead(fileToWrite.FileName))
+            {
+                SimulateStartOutput($"\nStart outputting {fileToWrite.FileName} content");
+                printer.Print(file);
+                SimulateStartOutput($"Stop outputting {fileToWrite.FileName} content");
+            }           
+            
             Log("Print finished");
-            p1.Unregister(this);
-        }
-
-        public void Print(CanonPrinter p1)
-        {
-            p1.Register(this);
-            Log("Print started");
-            var o = new OpenFileDialog();
-            o.ShowDialog();
-            var f = File.OpenRead(o.FileName);
-            p1.Print(f);
-            Log("Print finished");
-            p1.Unregister(this);
+            printer.Unregister(this);
         }
 
         public void Log(string value)

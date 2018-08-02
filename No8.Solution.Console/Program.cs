@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using No8.Solution;
 
 namespace No8.Solution.Console
@@ -13,8 +14,8 @@ namespace No8.Solution.Console
             while (key.Key != ConsoleKey.Backspace)
             {
                 PrinterManager pm = new PrinterManager();
-                CanonPrinter cp = new CanonPrinter();
-                EpsonPrinter ep = new EpsonPrinter();
+                Printer canon = new Printer("Canon", "X321");
+                Printer epson = new Printer("Epson", "ZOOM");
 
                 System.Console.WriteLine("Select your choice:");
                 System.Console.WriteLine("1:Add new printer");
@@ -30,12 +31,12 @@ namespace No8.Solution.Console
 
                 if (key.Key == ConsoleKey.D2)
                 {
-                    pm.Print(cp);
+                    pm.Print(canon);
                 }
 
                 if (key.Key == ConsoleKey.D3)
                 {
-                    pm.Print(ep);
+                    pm.Print(epson);
                 }
             }
         }
