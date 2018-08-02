@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-using No8.Solution;
+using System.Collections.Generic;
 
 namespace No8.Solution.Console
 {
@@ -9,36 +8,35 @@ namespace No8.Solution.Console
         [STAThread]
         static void Main(string[] args)
         {
-            ConsoleKeyInfo key = default(ConsoleKeyInfo);
+            PrinterManager pm = new PrinterManager();
 
+            // Заранее созданные объекты, которые раньше инициализировались
+            // с собственными типами Canon и Epson
+            Printer canon = new Printer("Canon", "X321");
+            Printer epson = new Printer("Epson", "ZOOM");
+            pm.Add(canon); pm.Add(epson);
+            MenuHandler.mapPrinters = new Dictionary<int, Printer>();
+            MenuHandler.mapPrinters.Add(0, canon);
+            MenuHandler.mapPrinters.Add(1, epson);
+
+            ConsoleKeyInfo key = default(ConsoleKeyInfo);
             while (key.Key != ConsoleKey.Backspace)
             {
-                PrinterManager pm = new PrinterManager();
-                Printer canon = new Printer("Canon", "X321");
-                Printer epson = new Printer("Epson", "ZOOM");
-
-                System.Console.WriteLine("Select your choice:");
-                System.Console.WriteLine("1:Add new printer");
-                System.Console.WriteLine("2:Print on Canon");
-                System.Console.WriteLine("3:Print on Epson");
-                System.Console.WriteLine("Press backspace to exit");
-
+                MenuHandler.GenerateMap(pm);
+                MenuHandler.PrintMenu(pm);
                 key = System.Console.ReadKey();
-                //if (key.Key == ConsoleKey.D1)
-                //{
-                //    CreatePrinter();
-                //}
-
-                if (key.Key == ConsoleKey.D2)
+                if (key.Key == ConsoleKey.D1)
                 {
-                    pm.Print(canon);
+                    System.Console.WriteLine();
+                    MenuHandler.CreateNewPrinter(pm);
                 }
-
-                if (key.Key == ConsoleKey.D3)
+                else
                 {
-                    pm.Print(epson);
-                }
-            }
+                    pm.Print(MenuHandler.mapPrinters[
+                        key.KeyChar - MenuHandler.ASCI_CODE_0_DIGIT - MenuHandler.MENU_ITEMS_SHIFT
+                    ]);
+                }               
+            }           
         }
     }
 }

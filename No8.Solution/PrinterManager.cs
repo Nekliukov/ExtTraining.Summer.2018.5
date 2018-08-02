@@ -1,36 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace No8.Solution
 {
     public class PrinterManager
     {
+        // Пока public, потом изменю
+        public List<Printer> Printers;
+
+        // Список принтеров не нужен другим типам, да и это нарушит инкапсуляцию
+
+        // Добавленное событие
         public event EventHandler<TerminatorEventArgs> OutputTerminator = delegate { };
 
+        // Методы, транслирующие въодную информацию в желаемое событие
         public void SimulateStartOutput(string message)
             => OnOutputTerminator(new TerminatorEventArgs(message));
 
         public void SimulateStopOutput(string message)
             => OnOutputTerminator(new TerminatorEventArgs(message));
 
-        public PrinterManager() => Printers = new List<object>();
+        // Мы заранее знаем, что работаем с Printer
+        public PrinterManager() => Printers = new List<Printer>();
 
-        public List<object> Printers { get; set; }
-
-        public void Add(Printer p1)
+        public void Add(Printer newPrinter)
         {
-            Console.WriteLine("Enter printer name");
-            p1.Name = Console.ReadLine();
-            Console.WriteLine("Enter printer model");
-            p1.Model = Console.ReadLine();
-
-            if (!Printers.Contains(p1))
+            if (newPrinter == null)
             {
-                Printers.Add(p1);
-                Console.WriteLine("Printer added");
+                throw new ArgumentNullException(nameof(newPrinter));
             }
+
+            foreach (var printer in Printers)
+            {
+                if (printer.Equals(newPrinter))
+                {
+                    Console.WriteLine("Error. This printer is already exists");
+                    return;
+                }
+            }
+
+            Printers.Add(newPrinter);
         }
 
         public void Print(Printer printer)
@@ -40,12 +52,12 @@ namespace No8.Solution
             fileToWrite.ShowDialog();
             using (var file = File.OpenRead(fileToWrite.FileName))
             {
-                SimulateStartOutput($"\nStart outputting {fileToWrite.FileName} content");
+                SimulateStartOutput($"\n{printer.Name} {printer.Model} starts outputting" +
+                                    $" {fileToWrite.SafeFileName} content");
                 printer.Print(file);
-                SimulateStartOutput($"Stop outputting {fileToWrite.FileName} content");
+                SimulateStartOutput($"\n{printer.Name} {printer.Model} has foun end of file");
             }           
             
-            Log("Print finished");
             printer.Unregister(this);
         }
 
