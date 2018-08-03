@@ -15,15 +15,14 @@ namespace No8.Solution.Console
             Printer canon = new Printer("Canon", "X321");
             Printer epson = new Printer("Epson", "ZOOM");
             pm.Add(canon); pm.Add(epson);
-            MenuHandler.mapPrinters = new Dictionary<int, Printer>();
-            MenuHandler.mapPrinters.Add(0, canon);
-            MenuHandler.mapPrinters.Add(1, epson);
+            MenuHandler.mapPrinters = new Dictionary<int, Printer> {{0, canon}, {1, epson}};
 
             ConsoleKeyInfo key = default(ConsoleKeyInfo);
             while (key.Key != ConsoleKey.Backspace)
             {
                 MenuHandler.GenerateMap(pm);
                 MenuHandler.PrintMenu(pm);
+
                 key = System.Console.ReadKey();
                 if (key.Key == ConsoleKey.D1)
                 {

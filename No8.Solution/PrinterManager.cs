@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace No8.Solution
 {
-    public class PrinterManager
+    public class PrinterManager: IPrinterManager
     {
-        // Пока public, потом изменю
-        public List<Printer> Printers;
-
-        // Список принтеров не нужен другим типам, да и это нарушит инкапсуляцию
+        public List<Printer> Printers { get;}
 
         // Добавленное событие
         public event EventHandler<TerminatorEventArgs> OutputTerminator = delegate { };
@@ -49,24 +45,16 @@ namespace No8.Solution
         {
             printer.Register(this);
             var fileToWrite= new OpenFileDialog();
-            fileToWrite.ShowDialog();
+            fileToWrite.ShowDialog();            
             using (var file = File.OpenRead(fileToWrite.FileName))
             {
                 SimulateStartOutput($"\n{printer.Name} {printer.Model} starts outputting" +
                                     $" {fileToWrite.SafeFileName} content");
                 printer.Print(file);
-                SimulateStartOutput($"\n{printer.Name} {printer.Model} has foun end of file");
-            }           
+                SimulateStopOutput($"\n{printer.Name} {printer.Model} had found end of file");
+            }
             
             printer.Unregister(this);
-        }
-
-        public void Log(string value)
-        {
-            using (StreamWriter sw = File.AppendText("log.txt"))
-            {
-                sw.Write(value);
-            }
         }
 
         protected virtual void OnOutputTerminator(TerminatorEventArgs e)

@@ -58,6 +58,6 @@ namespace No8
             }
         }
 
-        public static event PrinterDelegate OnPrinted;
+       // public static event PrinterDelegate OnPrinted;
     }
 }
